@@ -8,7 +8,7 @@ function UserContext({children}) {
   let navigate =useNavigate();
 
   const [userData,setUserData]=useState(null);
-  const serverUrl="http://localhost:8000"
+  const serverUrl="https://user-authentication-backend-ry8o.onrender.com"
 
   const getUserData=async()=>{
 try {
