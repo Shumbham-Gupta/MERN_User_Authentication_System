@@ -40,8 +40,8 @@ try {
 
 res.cookie("token", token, {
   httpOnly: true,
-  secure: process.env.NODE_ENVIRONMENT === "production",
-  sameSite: process.env.NODE_ENVIRONMENT === "production" ? "strict" : "lax",
+  secure: true,
+  sameSite: "None",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 });
 
@@ -82,8 +82,8 @@ try {
 
 res.cookie("token",token,{
   httpOnly:true,
-  secure:process.env.NODE_ENVIRONMENT=="production",
-  sameSite:"strict",
+  secure:true,
+  sameSite:"None",
   maxAge:7*24*60*60*1000
 })
 
