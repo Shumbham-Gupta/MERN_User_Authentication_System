@@ -1,3 +1,4 @@
+import axios from "axios";
 import uploadOnCloudinary from "../config/cloudinary.js"
 import generateToken from "../config/token.js"
 import User from "../models/user.model.js"
@@ -45,6 +46,22 @@ res.cookie("token", token, {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 });
 
+     // ⭐⭐⭐ N8N WORKFLOW TRIGGER HERE ⭐⭐⭐
+    if (process.env.N8N_WEBHOOK_URL) {
+      try {
+        await axios.post(process.env.N8N_WEBHOOK_URL, {
+          firstName,
+          lastName,
+          email,
+          userName,
+          profileImage,
+          createdAt: new Date().toISOString(),
+        });
+        console.log("n8n webhook triggered successfully");
+      } catch (err) {
+        console.log("n8n webhook error:", err.message);
+      }
+    }
 
 return res.status(201).json({
   message: "User registered successfully",
