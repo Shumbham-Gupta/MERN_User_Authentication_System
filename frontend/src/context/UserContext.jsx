@@ -8,7 +8,7 @@ function UserContext({children}) {
   let navigate =useNavigate();
 
   const [userData,setUserData]=useState(null);
-  const serverUrl="https://mern-user-authentication-system-backend.onrender.com"
+  const serverUrl="https://mern-user-authentication-system-server.onrender.com"
 
   const getUserData=async()=>{
 try {
