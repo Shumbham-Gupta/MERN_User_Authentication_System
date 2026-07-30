@@ -6,7 +6,7 @@ export const dataContext =createContext()
 function UserContext({children}) {
   const [userData,setUserData]=useState(null);
   const [loading,setLoading]=useState(true);
-  const serverUrl=import.meta.env.VITE_SERVER_URL || "http://localhost:8000"
+  const serverUrl=import.meta.env.VITE_SERVER_URL || "https://mern-user-authentication-system-server.onrender.com"
 
   const getUserData=async()=>{
 try {
