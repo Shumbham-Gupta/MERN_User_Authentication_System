@@ -2,13 +2,15 @@ import uploadOnCloudinary from "../config/cloudinary.js"
 import generateToken from "../config/token.js"
 import User from "../models/user.model.js"
 import bcrypt from "bcryptjs"
+import { validateSignUp, isValidEmail } from "../utils/validators.js"
 
 export const signUp = async  (req,res)=>{
   try {
     const {firstName,lastName,email,password,userName}=req.body
-     
-    if(!firstName || !lastName || !email || !password || !userName){
-      return res.status(400).json({message:"send all details"})
+
+    const validationError = validateSignUp(req.body)
+    if(validationError){
+      return res.status(400).json({message:validationError})
     }
 
     let profileImage;
@@ -20,13 +22,13 @@ export const signUp = async  (req,res)=>{
       return res.status(400).json({message:"user already exist"});
     }
     
-const hashedPaasword=await bcrypt.hash(password,10);
+const hashedPassword=await bcrypt.hash(password,10);
 
 const user=await User.create({
   firstName,
   lastName,
   email,
-  password:hashedPaasword,
+  password:hashedPassword,
   userName,
   profileImage
 })
@@ -36,6 +38,7 @@ try {
  token = generateToken(user._id)
 } catch (error) {
   console.log(error);
+  return res.status(500).json({message:"could not generate auth token"})
 }
 
 res.cookie("token", token, {
@@ -64,6 +67,12 @@ return res.status(201).json({
 export const login=async(req,res)=>{
 try {
   const {email,password}=req.body;
+  if(!email || !password){
+    return res.status(400).json({message:"send all details"})
+  }
+  if(!isValidEmail(email)){
+    return res.status(400).json({message:"please provide a valid email"})
+  }
   let existUser=await User.findOne({email})
   if(!existUser){
     return res.status(400).json({message:"user doesn't exist"});
@@ -78,12 +87,13 @@ try {
  token = generateToken(existUser._id)
 } catch (error) {
   console.log(error);
+  return res.status(500).json({message:"could not generate auth token"})
 }
 
 res.cookie("token",token,{
   httpOnly:true,
-  secure:process.env.NODE_ENVIRONMENT=="production",
-  sameSite:"strict",
+  secure:process.env.NODE_ENVIRONMENT==="production",
+  sameSite:process.env.NODE_ENVIRONMENT==="production"?"strict":"lax",
   maxAge:7*24*60*60*1000
 })
 
@@ -98,7 +108,8 @@ return res.status(200).json({
 }})
 
 } catch (error) {
-  return res.status(500).json(error);
+  console.log(error)
+  return res.status(500).json({message:"internal server error"});
 }
 }
 
@@ -107,7 +118,8 @@ export const logout=async(req,res)=>{
     res.clearCookie("token")
    return res.status(200).json({message:"logged out successfully"})
   } catch (error) {
-    return res.status(500).json(error)
+    console.log(error)
+    return res.status(500).json({message:"internal server error"})
   }
 }
 
@@ -117,12 +129,13 @@ export const getUserData=async(req,res)=>{
     if(!userId){
       return res.status(400).json({message:"user not found"})
     }
-    let user= await User.findById(userId)
+    let user= await User.findById(userId).select("-password")
     if(!user){
       return res.status(400).json({message:"user not found"})
-    } 
+    }
     return res.status(200).json(user)
   } catch (error) {
-    return res.status(500).json({message:error})
+    console.log(error)
+    return res.status(500).json({message:"internal server error"})
   }
 }

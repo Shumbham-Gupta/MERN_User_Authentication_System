@@ -1,16 +1,20 @@
 import React from 'react'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { dataContext } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { set } from 'mongoose'
 
 function Home() {
   let {userData,setUserData,getUserData,serverUrl}=useContext(dataContext)
 let navigate=useNavigate();
-if(!userData){
-  navigate("/login")
-}
+
+const initials = `${userData?.firstName?.[0] || ""}${userData?.lastName?.[0] || ""}`.toUpperCase()
+
+useEffect(()=>{
+  if(!userData){
+    navigate("/login")
+  }
+},[userData,navigate])
 
 const handleLogOut=async()=>{
   try {
@@ -28,8 +32,18 @@ const handleLogOut=async()=>{
 return (
   <div className="w-full min-h-screen bg-gray-900 flex flex-col justify-center items-center p-4 gap-6">
 
-  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-800 overflow-hidden relative border-2 border-purple-500">
-    <img src={userData?.profileImage} alt="Profile" className="w-full h-full object-cover" />
+  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-800 overflow-hidden relative border-2 border-purple-500 flex justify-center items-center">
+    {userData?.profileImage ? (
+      <img
+        src={userData.profileImage}
+        alt="Profile"
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <span className="text-2xl md:text-3xl font-semibold text-purple-300 select-none">
+        {initials || "?"}
+      </span>
+    )}
   </div>
 
   <p className="text-white text-base md:text-lg text-center">

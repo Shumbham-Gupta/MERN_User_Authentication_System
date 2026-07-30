@@ -2,13 +2,11 @@ import React, { createContext } from 'react'
 import axios from "axios"
 import { useState } from 'react'
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 export const dataContext =createContext()
 function UserContext({children}) {
-  let navigate =useNavigate();
-
   const [userData,setUserData]=useState(null);
-  const serverUrl="http://localhost:8000"
+  const [loading,setLoading]=useState(true);
+  const serverUrl=import.meta.env.VITE_SERVER_URL || "http://localhost:8000"
 
   const getUserData=async()=>{
 try {
@@ -17,22 +15,23 @@ try {
   })
    setUserData(data)
 } catch (error) {
-  navigate("/login")
+  setUserData(null)
   console.log(error)
 }
   }
 
 const value={
-  serverUrl,userData,setUserData,getUserData 
+  serverUrl,userData,setUserData,getUserData,loading
 }
 
-// useEffect(()=>{
-//   getUserData()
-// },[])
 useEffect(() => {
-  if (document.cookie.includes("token")) {
-    getUserData();
-  }
+  const init = async () => {
+    if (document.cookie.includes("token")) {
+      await getUserData();
+    }
+    setLoading(false);
+  };
+  init();
 }, []);
 
   return (
